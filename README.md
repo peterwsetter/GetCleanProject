@@ -30,11 +30,32 @@ Note: All these commands are done in the user's working directory.
 ### Getting Data
 The run_analysis.R script starts by downloading and unzipping the UCI HAR dataset using the download.file and unzip functions. 
 
+### Creating Header for Data Set
+Using read.table, read in the variable names from features.txt. The variable names were modified as follows:
+-Remove "(", ")", "-" and ","
+-Fix the "BodyBody" naming error to "Body"
+-Change "mean" and "std" to "Mean" and "Std" to adhere to camelCase naming convention
+-Final call to make.unique to ensure no repeated names
+
+#### Note on Descriptive Feature Names
+The original feature names from the dataset were maintained because they followed a consistent naming convention. While these names are abbreviations, they are descriptive. Please see the CODEBOOK.md, for more details.
+
 ### Reading and Merging the Data
-Using read.table, subject_test.text, Y_test.txt, and X_test.txt are imported. Names are added to each, identifying the subject_test as "subject_id", y_test as "activity", and X_test with the feature names from features.txt. These files are combined column-wise into testdata.
+Using read.table, subject_test.txt, Y_test.txt, and X_test.txt are imported. These files are combined column-wise into testdata. This was repeated for the files labeled train.
 
-These steps were repeated for the training data to create the data frame traindata.
+The two data sets are combined row-wise to create allMessyData, a data frame of 10299 observations and 563 varibles. The header for the table was "subject_id" (corresponding to the data in "subject_*.txt"), "activity" (corresponding to the data in "Y_*.txt"), and the variable names cleaned from features.txt (corresponding to the data in "X_*.txt")
 
-The two data sets are combined row-wise to create allMessyData, a data frame of 10299 observations and 563 varibles.
+## Creating the First Tidy Data Set
 
-## Cleaning Data
+Using the dplyr package, variables for the mean and standard deviation were selected along with the subject_id and activity. The meanFreq and angle columns were excluded, because they separate statistics from the mean nor standard deviation. The activity column was modifying, changing the numerical values to descriptive variable names listed in the activity_labels.txt file from the UCI HAR Dataset. The result is meanStdData, a data table with 10299 observations of 68 variables. 
+
+A tidy dataset, as described in the course notes [Components of Tidy Data](https://d396qusza40orc.cloudfront.net/getdata/lecture_slides/01_03_componentsOfTidyData.pdf) are:
+1. Each varible you measure should be in one column
+2. Each different observation of that variable should be in a different row
+3. There should be one table for each "kind" of varible
+4. "If you have multiple tables, they should include a column in the table that allows them to be linked"
+
+All the data is of one "kind", that is, measurements from participants completing various exerices. Since the third requirement is satisified, requirement 4 does not apply. The format of this dataset, and the final dataset, is "wide". This choice was made since each feature -- tBodyAccMeanX, etc. -- is a separate dependent variable the same event, fulfilling the the first requirement. This structure also fulfills the second requirement, each row is a separate observation with a subject, activity, and the features. I believe this format better fulfills the second requirement since combining all the features into one column would require the creation of a new column of indices corresponding to the different activity measurements.
+
+### Creation of Final Tidy Data Set
+The final data set, avgMeanStd was created using the group_by and summarise_each functions. avgMeanStd consists of the average of each feature for each subject and activity. This tidy data set consists of 180 observations of the 68 variables.

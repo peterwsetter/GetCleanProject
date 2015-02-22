@@ -32,22 +32,22 @@ The run_analysis.R script starts by downloading and unzipping the UCI HAR data s
 
 ### Creating Header for Data Set
 Using read.table, read in the variable names from features.txt. The variable names were modified as follows:
--Remove "(", ")", "-" and ","
--Fix the "BodyBody" naming error to "Body"
--Change "mean" and "std" to "Mean" and "Std" to adhere to camelCase naming convention
--Final call to make.unique to ensure no repeated names
+1. Remove "(", ")", "-" and ","
+2. Fix the "BodyBody" naming error to "Body"
+3. Change "mean" and "std" to "Mean" and "Std" to adhere to camelCase naming convention
+4. Final call to make.unique to ensure no repeated names
 
 #### Note on Descriptive Feature Names
 The original feature names from the data set were maintained because they followed a consistent naming convention. While these names are abbreviations, they are descriptive. Please see the CODEBOOK.md, for more details.
 
 ### Reading and Merging the Data
-Using read.table, subject_test.txt, Y_test.txt, and X_test.txt are imported. These files are combined column-wise into testdata. This was repeated for the files labeled train.
+Using read.table, subject_test.txt, Y_test.txt, and X_test.txt are imported. These files are combined column-wise into testData. This was repeated for the files labeled train.
 
 The two data sets are combined row-wise to create allMessyData, a data frame of 10299 observations and 563 variables. The header for the table was "subject_id" (corresponding to the data in "subject_*.txt"), "activity" (corresponding to the data in "Y_*.txt"), and the variable names cleaned from features.txt (corresponding to the data in "X_*.txt")
 
 ## Creating the First Tidy Data Set
 
-Using the dplyr package, variables for the mean and standard deviation were selected along with the subject_id and activity. The meanFreq and angle columns were excluded, because they separate statistics from the mean nor standard deviation. The activity column was modifying, changing the numerical values to descriptive variable names listed in the activity_labels.txt file from the UCI HAR Dataset. The result is meanStdData, a data table with 10299 observations of 68 variables. 
+Using the dplyr package, variables for the mean and standard deviation were selected along with the subject_id and activity. The meanFreq and angle columns were excluded, because they are separate statistics from the mean and standard deviation. The activity column was modifyied, changing the numerical values to descriptive variable names listed in the activity_labels.txt file from the UCI HAR Dataset. The result is meanStdData, a data table with 10299 observations of 68 variables. 
 
 A tidy data set, as described in the course notes [Components of Tidy Data](https://d396qusza40orc.cloudfront.net/getdata/lecture_slides/01_03_componentsOfTidyData.pdf) are:
 1. Each variable you measure should be in one column
@@ -55,7 +55,7 @@ A tidy data set, as described in the course notes [Components of Tidy Data](http
 3. There should be one table for each "kind" of variable
 4. "If you have multiple tables, they should include a column in the table that allows them to be linked"
 
-All the data is of one "kind", that is, measurements from participants completing various exercises. Since the third requirement is satisfied, requirement 4 does not apply. The format of this data set, and the final data set, is "wide". This choice was made since each feature -- tBodyAccMeanX, etc. -- is a separate dependent variable the same event, fulfilling the the first requirement. This structure also fulfills the second requirement, each row is a separate observation with a subject, activity, and the features. I believe this format better fulfills the second requirement since combining all the features into one column would require the creation of a new column of indices corresponding to the different activity measurements, spreading out an observation over several columns.
+All the data is of one "kind", that is, measurements from participants completing various exercises. Since the third requirement is satisfied, requirement 4 does not apply. The format of this data set, and the final data set, is "wide". This choice was made since each feature -- tBodyAccMeanX, etc. -- is a separate dependent variable the same event, fulfilling the the first requirement. This structure also fulfills the second requirement, each row is a separate observation with a subject, activity, and the features. I believe the wide format better fulfills the second requirement since combining all the features into one column would require the creation of a new column of indices corresponding to the different activity measurements, spreading out an observation over several columns.
 
 ### Creation of Final Tidy Data Set
 The final data set, avgMeanStd was created using the group_by and summarise_each functions. This section of run_analysis is based off an answer on [Stack Overflow](http://stackoverflow.com/questions/21644848/summarizing-multiple-columns-with-dplyr?rq=1) avgMeanStd consists of the average of each feature for each subject and activity. This tidy data set consists of 180 observations of the 68 variables.
